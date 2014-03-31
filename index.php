@@ -12,8 +12,16 @@ function process_data($data) {
 	return $result;
 }
 
-function running_chart($data) {
-	return $data['data'];
+function running_chart($data, $name, $title, $subtitle) {
+    return array(
+        'title' => array('text' => $title, 'x' => -20),
+        'subtitle' => array('text' => $subtitle, 'x' => -20),
+        'xAxis' => array('categories' => array_keys($data)),
+        'yAxis' => array('title' => 'Average Latency (ns)', 'plotLines' => array('value' => 0, 'width' => 1, 'color' => '#808080')),
+        'tooltip' => array('valueSuffix' => 'ns'),
+        'legend' => array('layout' => 'vertical', 'align' => 'right', 'verticalAlign' => 'middle', 'borderWidth' => 0),
+        'series' => array(array('name' => $name, 'data' => array_map(function($v) { return floatval($v); }, array_values($data)))),
+    );
 }
 ?>
 <html>
@@ -22,14 +30,14 @@ function running_chart($data) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <!-- Bootstrap -->
         <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen"></title>
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+	    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
     </head>
     <body>
 	<div class="container-fluid">
-	<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 	    <?php
-	    $dir_path = "/home/amirsaman/Desktop/experiments/single/pmfs/journal/";
+	    $dir_path = realpath('../experiments/single/pmfs/journal/') . '/';//"/Users/saman/Desktop/experiments/single/pmfs/journal/";
 	    $workloads = scandir($dir_path);
+        $charts = array();
 
 	    foreach($workloads as $workload) {
 		if ($workload == '.' || $workload == '..') continue;
@@ -59,7 +67,9 @@ function running_chart($data) {
 						echo '<p>Pie Chart</p>';
 					}
 					else {
-						echo '<p>Running Chart</p>';
+                        echo '<div id="chart_' . count($charts) . '" style="min-width: 310px; height: 400px; margin: 0 auto"></div>';
+                        $charts[] = '$(\'#chart_' . count($charts) . '\').highcharts(' .
+                            json_encode(running_chart(array_slice($data[$op]['data'], 0, 20), 'a', 'b', 'c')) . ');';
 					}
 					echo '</div>';
 				}
@@ -74,58 +84,16 @@ function running_chart($data) {
 	<script src="http://code.jquery.com/jquery.js"></script>
 	<script src="bootstrap/js/bootstrap.min.js"></script>
 
-	<script type="text/javascript">
-$(function () {
-        $('#container').highcharts({
-            title: {
-                text: 'Monthly Average Temperature',
-                x: -20 //center
-            },
-            subtitle: {
-                text: 'Source: WorldClimate.com',
-                x: -20
-            },
-            xAxis: {
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-            },
-            yAxis: {
-                title: {
-                    text: 'Temperature (°C)'
-                },
-                plotLines: [{
-                    value: 0,
-                    width: 1,
-                    color: '#808080'
-                }]
-            },
-            tooltip: {
-                valueSuffix: '°C'
-            },
-            legend: {
-                layout: 'vertical',
-                align: 'right',
-                verticalAlign: 'middle',
-                borderWidth: 0
-            },
-            series: [{
-                name: 'Tokyo',
-                data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6]
-            }, {
-                name: 'New York',
-                data: [-0.2, 0.8, 5.7, 11.3, 17.0, 22.0, 24.8, 24.1, 20.1, 14.1, 8.6, 2.5]
-            }, {
-                name: 'Berlin',
-                data: [-0.9, 0.6, 3.5, 8.4, 13.5, 17.0, 18.6, 17.9, 14.3, 9.0, 3.9, 1.0]
-            }, {
-                name: 'London',
-                data: [3.9, 4.2, 5.7, 8.5, 11.9, 15.2, 17.0, 16.6, 14.2, 10.3, 6.6, 4.8]
-            }]
+    <script type="text/javascript">
+        $(function () {
+        <?php
+        foreach($charts as $chart) {
+            echo $chart . "\n";
+            break;
+        }
+        ?>
         });
-    });
-    
-
-		</script>
+    </script>
 
 	<script src="highcharts-3.0.10/js/highcharts.js"></script>
 	<script src="highcharts-3.0.10/js/modules/exporting.js"></script>
