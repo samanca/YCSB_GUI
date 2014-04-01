@@ -136,8 +136,8 @@ $base_path = realpath('../experiments/') . '/';
 	    foreach($workloads as $workload) {
 		if ($workload == '.' || $workload == '..') continue;
 		echo '<div class="row row-fluid">';
-		echo '<div class="span12">';
-		echo "<h1>Workload $workload</h1>";
+		echo '<div class="span10 offset1 hero-unit">';
+		echo '<h1>Workload ' . strtoupper($workload) . '</h1>';
 		echo '</div>';
 		
 		foreach(array('histogram', 'timeseries') as $type) {
@@ -146,8 +146,8 @@ $base_path = realpath('../experiments/') . '/';
 				$data = array_slice($data, 4);
 				$data = array_slice($data, 0, count($data) - 2);
 				$data = array_map(function($v) { return explode(',', $v); }, $data);
-				echo '<div class="span12">';
-				echo "<h2>$type ($mode)</h2>";
+				echo '<div class="span10 offset1">';
+				echo '<h2>' . ucfirst($type . ' ( ' . $mode) . ' )</h2>';
 				echo '<p><strong>Overall' . $data[0][1] . ':' . $data[0][2] . '</strong></p>';
 				echo '<p><strong>Overall' . $data[1][1] . ':' . $data[1][2] . '</strong></p>';
 				$data = process_data(array_slice($data, 2));
@@ -161,7 +161,7 @@ $base_path = realpath('../experiments/') . '/';
 					if ($type == 'histogram') {
 						$data[$op]['data']['>1000'] = $data[$op]['stat']['>1000'];
 						$charts[] = '$(\'#chart_' . count($charts) . '\').highcharts(' .
-						json_encode(pie_chart(prep_pie($data[$op]['data'], intval($data[$op]['stat']['Operations']), 15), 
+						json_encode(pie_chart(prep_pie($data[$op]['data'], intval($data[$op]['stat']['Operations']), 30 / count($ops)), 
 							'Operations per Bucket', $op)) . ');';
 					}
 					else {
@@ -171,6 +171,7 @@ $base_path = realpath('../experiments/') . '/';
 					echo '</div>';
 				}
 				echo '</div>';
+				echo '<hr />';
 				echo '</div>';
 			}
 		}
