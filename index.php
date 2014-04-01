@@ -85,7 +85,7 @@ function running_chart($data, $name, $title, $subtitle) {
     );
 }
 
-
+$base_path = realpath('../experiments/') . '/';
 ?>
 <html>
     <head>
@@ -96,9 +96,40 @@ function running_chart($data, $name, $title, $subtitle) {
 	    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
     </head>
     <body>
+	<div id="navbar-example" class="navbar navbar-static">
+		<div class="navbar-inner">
+			<div class="container" style="width: auto;">
+				<a class="brand" href="#">YCSB GUI</a>
+				<ul class="nav" role="navigation">
+			<?php
+			$mc = 0;
+			foreach(scandir($base_path) as $tmode) {
+				if (strpos($tmode, '.') === 0) continue;
+				foreach(scandir($base_path . $tmode) as $kernel) {
+					if (strpos($kernel, '.') === 0) continue;
+					echo '<li class="dropdown">';
+					echo '<a id="drop' . $mc . '" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">' . 
+						$kernel . ' (' . $tmode . ') <b class="caret"></b></a>';
+					echo '<ul class="dropdown-menu" role="menu" aria-labelledby="drop' . $mc . '">';
+					foreach(scandir($base_path . $tmode . '/' . $kernel) as $mode) {
+						if (strpos($mode, '.') === 0) continue;
+						echo '<li role="presentation"><a role="menuitem" tabindex="-1" href="?path=' . 
+							$tmode . '/' . $kernel . '/' . $mode . '">';
+						echo $mode;
+						echo '</a></li>';
+					}
+					echo '</ul></li>';
+					$mc++;
+				}
+			}
+			?>
+    				</ul>
+			</div>
+		</div>
+	</div>
 	<div class="container-fluid">
 	    <?php
-	    $dir_path = realpath('../experiments/single/pmfs/journal/') . '/';//"/Users/saman/Desktop/experiments/single/pmfs/journal/";
+	    $dir_path = $base_path . (isset($_GET['path']) ? $_GET['path'] : 'single/pmfs/journal') . '/';
 	    $workloads = scandir($dir_path);
             $charts = array();
 
