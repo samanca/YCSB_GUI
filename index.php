@@ -26,6 +26,51 @@ function sample($data, $sample_size) {
 	}
 }
 
+function prep_pie($data, $total, $limit = 20) {
+	$temp = array_filter($data, function($v) { return intval($v) > 0; });
+	arsort($temp);
+	if (count($temp) > $limit) $temp = array_slice($temp, 0, $limit, true);
+	$sum = 0;
+	foreach($temp as $key=>$value) {
+		$temp[$key] = ($value * 100) / $total;
+		$sum = $sum + $temp[$key];
+	}
+	if ($sum < 100) $temp['Other'] = 100 - $sum;
+	return $temp;
+}
+
+function pie_chart($data, $name, $title) {
+	return array(
+		'chart' => array('plotBackgroundColor' => null, 'plotBorderWidth' => null, 'plotShadow' => false),
+		'title' => array('text' => $title),
+		'tooltip' => array('pointFormat' => '{series.name}: <b>{point.percentage:.1f}%</b>'),
+		'plotOptions' => array(
+			'pie' => array(
+				'allowPointSelect' => true,
+                		'cursor' => 'pointer',
+				'dataLabels' => array(
+					'enabled' => true,
+                    			'color' => '#000000',
+                    			'connectorColor' => '#000000',
+                    			'format' => '<b>{point.name}</b>: {point.percentage:.1f} %'
+				),
+			),
+		),
+		'series' => array(
+			array(
+				'type' => 'pie',
+				'name' => $name,
+				'data' =>  array_map(function($key) use($data) {
+					return array(
+						($key == 'Other' ? 'Other' : "Bucket[$key]"), 
+						$data[$key]
+					); 
+				}, array_keys($data)),
+			),
+		),
+	);
+}
+
 function running_chart($data, $name, $title, $subtitle) {
     return array(
         'title' => array('text' => $title, 'x' => -20),
@@ -35,7 +80,7 @@ function running_chart($data, $name, $title, $subtitle) {
         'tooltip' => array('valueSuffix' => 'ns'),
         'legend' => array('layout' => 'vertical', 'align' => 'right', 'verticalAlign' => 'middle', 'borderWidth' => 0),
         'series' => array(
-		array('name' => $name, 'data' => array_map(function($v) { return intval($v); }, array_values($data))),
+		array('name' => $name, 'data' => array_map(function($v) { return floatval($v); }, array_values($data))),
 	),
     );
 }
@@ -80,14 +125,17 @@ function running_chart($data, $name, $title, $subtitle) {
 				$ops = array_keys($data);
 				foreach($ops as $op) {
 					echo '<div class="span' . (12 / count($ops)) . '">';
-					echo "<h3>$op</h3>";
+					echo '<div id="chart_' . count($charts) . 
+						'" style="min-width: 310px; height: 400px; margin: 0 auto"></div>';
 					if ($type == 'histogram') {
-						echo '<p>Pie Chart</p>';
+						$data[$op]['data']['>1000'] = $data[$op]['stat']['>1000'];
+						$charts[] = '$(\'#chart_' . count($charts) . '\').highcharts(' .
+						json_encode(pie_chart(prep_pie($data[$op]['data'], intval($data[$op]['stat']['Operations']), 15), 
+							'Operations per Bucket', $op)) . ');';
 					}
 					else {
-                        echo '<div id="chart_' . count($charts) . '" style="min-width: 310px; height: 400px; margin: 0 auto"></div>';
-                        $charts[] = '$(\'#chart_' . count($charts) . '\').highcharts(' .
-                            json_encode(running_chart(sample($data[$op]['data'], 20), 'Average Latency', $op, '')) . ');';
+						$charts[] = '$(\'#chart_' . count($charts) . '\').highcharts(' .
+						json_encode(running_chart(sample($data[$op]['data'], 40 / count($ops)), 'Average Latency', $op, '')) . ');';
 					}
 					echo '</div>';
 				}
