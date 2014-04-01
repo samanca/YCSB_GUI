@@ -12,17 +12,35 @@ function process_data($data) {
 	return $result;
 }
 
+function sample($data, $sample_size) {
+	if (count($data) <= $sample_size) return $data;
+	else {
+		$temp = array();
+		$sample_rate = count($data) / $sample_size;
+		$counter = 0;
+		foreach($data as $key=>$value) {
+			if (++$counter % $sample_rate == 0)
+				$temp[$key] = $value;
+		}
+		return $temp;
+	}
+}
+
 function running_chart($data, $name, $title, $subtitle) {
     return array(
         'title' => array('text' => $title, 'x' => -20),
         'subtitle' => array('text' => $subtitle, 'x' => -20),
         'xAxis' => array('categories' => array_keys($data)),
-        'yAxis' => array('title' => 'Average Latency (ns)', 'plotLines' => array('value' => 0, 'width' => 1, 'color' => '#808080')),
+        'yAxis' => array('title' => 'Average Latency (ns)', 'plotLines' => array(array('value' => 0, 'width' => 1, 'color' => '#808080'))),
         'tooltip' => array('valueSuffix' => 'ns'),
         'legend' => array('layout' => 'vertical', 'align' => 'right', 'verticalAlign' => 'middle', 'borderWidth' => 0),
-        'series' => array(array('name' => $name, 'data' => array_map(function($v) { return floatval($v); }, array_values($data)))),
+        'series' => array(
+		array('name' => $name, 'data' => array_map(function($v) { return intval($v); }, array_values($data))),
+	),
     );
 }
+
+
 ?>
 <html>
     <head>
@@ -37,7 +55,7 @@ function running_chart($data, $name, $title, $subtitle) {
 	    <?php
 	    $dir_path = realpath('../experiments/single/pmfs/journal/') . '/';//"/Users/saman/Desktop/experiments/single/pmfs/journal/";
 	    $workloads = scandir($dir_path);
-        $charts = array();
+            $charts = array();
 
 	    foreach($workloads as $workload) {
 		if ($workload == '.' || $workload == '..') continue;
@@ -69,7 +87,7 @@ function running_chart($data, $name, $title, $subtitle) {
 					else {
                         echo '<div id="chart_' . count($charts) . '" style="min-width: 310px; height: 400px; margin: 0 auto"></div>';
                         $charts[] = '$(\'#chart_' . count($charts) . '\').highcharts(' .
-                            json_encode(running_chart(array_slice($data[$op]['data'], 0, 20), 'a', 'b', 'c')) . ');';
+                            json_encode(running_chart(sample($data[$op]['data'], 20), 'Average Latency', $op, '')) . ');';
 					}
 					echo '</div>';
 				}
@@ -84,12 +102,11 @@ function running_chart($data, $name, $title, $subtitle) {
 	<script src="http://code.jquery.com/jquery.js"></script>
 	<script src="bootstrap/js/bootstrap.min.js"></script>
 
-    <script type="text/javascript">
+    <script type="text/javascript">	
         $(function () {
         <?php
         foreach($charts as $chart) {
             echo $chart . "\n";
-            break;
         }
         ?>
         });
