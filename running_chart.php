@@ -56,6 +56,10 @@ function running_chart($cats, $data, $name, $title, $subtitle) {
     );
 }
 
+if (!isset($_POST['input_data'])) {
+	$_POST['mode'] = 'run';
+	$_POST['input_data'] = "/home/amirsaman/Desktop/experiments/single/pmfs/nojournal/a, pmfs_nojournal\n/home/amirsaman/Desktop/experiments/single/rnvmm_nonet/nojournal/a, rnvmm_nonet_nojournal\n/home/amirsaman/Desktop/experiments/single/rnvmm_tcpip/nojournal/a, rnvmm_tcpip_nojournal";
+}
 
 if (isset($_POST['input_data'])) {
 	$lines = explode("\n", $_POST['input_data']);
