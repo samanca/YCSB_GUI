@@ -61,13 +61,17 @@ if (isset($_POST['input_data'])) {
 	$lines = explode("\n", $_POST['input_data']);
 	$charts = array_map(function($line) { return explode(',', $line); }, $lines);
 
-	$mode = 'load';
+	$mode = $_POST['mode'];
 
 	$chart_data = array();
+    $summary = array();
 	foreach($charts as $t) {
 		$data = import_data($t[0] . '/timeseries_' . $mode . '.txt');
-		foreach(array_keys($data) as $op)
+		foreach(array_keys($data) as $op) {
+            if (count($data[$op]['data']) > 1) $data[$op]['data'] = array_slice($data[$op]['data'], 1);
 			$chart_data[$op][trim($t[1])] = sample($data[$op], 100);
+            $summary[$op][$t[1]] = $data[$op]['stat'];
+        }
 	}
 	
 	foreach($chart_data as $key=>$value) {
@@ -107,13 +111,52 @@ if (isset($_POST['input_data'])) {
 		<div class="span4 offset1">		
 		    <p>Please enter input in the following format:</p>
 		    <p>[file path], [label]</p>
+            <p>
+                <select name="mode">
+                    <option value="load" selected>Load</option>
+                    <option value="run">Run</option>
+                </select>
+            </p>
 		    <p><input type="submit" value="Submit" class="btn" /></p>
 		</div>
 		<div class="span6">
-		    <textarea rows="5" name="input_data"><?php if(isset($_POST['input_data'])) echo $_POST['input_data']; ?></textarea>		    
+		    <textarea rows="6" cols="15" name="input_data"><?php if(isset($_POST['input_data'])) echo $_POST['input_data']; ?></textarea>
 		</div>
 	    </form>
 	</div>
+    <hr />
+    <div class="row-fluid">
+        <div class="span10 offset1">
+            <?php if (isset($summary)): ?>
+            <h1>Summary</h1>
+            <?php
+            $operations = array_keys($summary);
+            $titles = array_keys($summary[$operations[0]]);
+            ?>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <?php
+                        foreach($titles as $title) {
+                            echo "<td>$title</td>";
+                        }
+                        ?>
+                    </tr>
+                </thead>
+                <?php foreach($operations as $op) {
+                    echo '<tr>';
+                    echo "<td>$op</td>";
+                    foreach($titles as $title) {
+                        echo '<td>' . $summary[$op][$title]['AverageLatency(ns)'] . '</td>';
+                    }
+                    echo '</tr>';
+                }
+                ?>
+            </table>
+            <?php endif; ?>
+        </div>
+    </div>
 	<hr />
 	<div class="row-fluid">
 	    <div class="span10 offset1">
