@@ -44,13 +44,13 @@ function running_chart($cats, $data, $name, $title, $subtitle) {
         'yAxis' => array('title' => 'Average Latency (ns)', 'plotLines' => array(array('value' => 0, 'width' => 1, 'color' => '#808080'))),
         'tooltip' => array('valueSuffix' => 'ns'),
         'legend' => array('layout' => 'vertical', 'align' => 'right', 'verticalAlign' => 'middle', 'borderWidth' => 0),
-        'series' => 
+        'series' =>
 		array_map(function($key) use($data) {
 			$t = $data[$key]['data'];
 			return array(
-				'name' => $key, 
-				'data' => array_map(function($v) use($t) { 
-					return floatval($t[$v]); 
+				'name' => $key,
+				'data' => array_map(function($v) use($t) {
+					return floatval($t[$v]);
 				}, array_keys($data[$key]['data']))
 			); }, array_keys($data))
     );
@@ -58,7 +58,7 @@ function running_chart($cats, $data, $name, $title, $subtitle) {
 
 if (!isset($_POST['input_data'])) {
 	$_POST['mode'] = 'run';
-	$_POST['input_data'] = "/home/amirsaman/Desktop/experiments/single/pmfs/nojournal/a, pmfs_nojournal\n/home/amirsaman/Desktop/experiments/single/rnvmm_nonet/nojournal/a, rnvmm_nonet_nojournal\n/home/amirsaman/Desktop/experiments/single/rnvmm_tcpip/nojournal/a, rnvmm_tcpip_nojournal";
+	$_POST['input_data'] = "/home/amirsaman/Desktop/experiments/single/fsync_safe/pmfs/nojournal/a_1, pmfs_nojournal_1\n/home/amirsaman/Desktop/experiments/single/fsync_safe/pmfs/nojournal/a_4, pmfs_nojournal_4\n/home/amirsaman/Desktop/experiments/single/fsync_safe/pmfs/nojournal/a_16, pmfs_nojournal_16";
 }
 
 if (isset($_POST['input_data'])) {
@@ -77,9 +77,9 @@ if (isset($_POST['input_data'])) {
             $summary[$op][$t[1]] = $data[$op]['stat'];
         }
 	}
-	
+
 	foreach($chart_data as $key=>$value) {
-		$name = substr($key, 1, strlen($key) - 2);		
+		$name = substr($key, 1, strlen($key) - 2);
 		$chart[$name] = running_chart(array_keys($chart_data[$key][array_keys($value)[0]]['data']), $chart_data[$key], 'Average Latency', 'Average Latency', '');
 	}
 
@@ -112,7 +112,7 @@ if (isset($_POST['input_data'])) {
 	<div class="container-fluid">
 	<div class="row-fluid">
 	    <form action="running_chart.php" method="POST">
-		<div class="span4 offset1">		
+		<div class="span4 offset1">
 		    <p>Please enter input in the following format:</p>
 		    <p>[file path], [label]</p>
             <p>
@@ -174,9 +174,9 @@ if (isset($_POST['input_data'])) {
 		?>
 	    </div>
 	</div>
-	</div>	
+	</div>
 	<script src="http://code.jquery.com/jquery.js"></script>
-	<script src="bootstrap/js/bootstrap.min.js"></script>    
+	<script src="bootstrap/js/bootstrap.min.js"></script>
 
 	<script src="highcharts-3.0.10/js/highcharts.js"></script>
 	<script src="highcharts-3.0.10/js/modules/exporting.js"></script>

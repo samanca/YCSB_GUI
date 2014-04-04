@@ -62,9 +62,9 @@ function pie_chart($data, $name, $title) {
 				'name' => $name,
 				'data' =>  array_map(function($key) use($data) {
 					return array(
-						($key == 'Other' ? 'Other' : "Bucket[$key]"), 
+						($key == 'Other' ? 'Other' : "Bucket[$key]"),
 						$data[$key]
-					); 
+					);
 				}, array_keys($data)),
 			),
 		),
@@ -85,7 +85,7 @@ function running_chart($data, $name, $title, $subtitle) {
     );
 }
 
-$base_path = realpath('../experiments/') . '/';
+$base_path = realpath('../experiments/single/') . '/';
 ?>
 <html>
     <head>
@@ -108,12 +108,12 @@ $base_path = realpath('../experiments/') . '/';
 				foreach(scandir($base_path . $tmode) as $kernel) {
 					if (strpos($kernel, '.') === 0) continue;
 					echo '<li class="dropdown">';
-					echo '<a id="drop' . $mc . '" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">' . 
+					echo '<a id="drop' . $mc . '" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">' .
 						$kernel . ' (' . $tmode . ') <b class="caret"></b></a>';
 					echo '<ul class="dropdown-menu" role="menu" aria-labelledby="drop' . $mc . '">';
 					foreach(scandir($base_path . $tmode . '/' . $kernel) as $mode) {
 						if (strpos($mode, '.') === 0) continue;
-						echo '<li role="presentation"><a role="menuitem" tabindex="-1" href="?path=' . 
+						echo '<li role="presentation"><a role="menuitem" tabindex="-1" href="?path=' .
 							$tmode . '/' . $kernel . '/' . $mode . '">';
 						echo $mode;
 						echo '</a></li>';
@@ -130,7 +130,7 @@ $base_path = realpath('../experiments/') . '/';
 	</div>
 	<div class="container-fluid">
 	    <?php
-	    $dir_path = $base_path . (isset($_GET['path']) ? $_GET['path'] : 'single/pmfs/journal') . '/';
+	    $dir_path = $base_path . (isset($_GET['path']) ? $_GET['path'] : 'fsync_safe/pmfs/nojournal') . '/';
 	    $workloads = scandir($dir_path);
             $charts = array();
 
@@ -140,7 +140,7 @@ $base_path = realpath('../experiments/') . '/';
 		echo '<div class="span10 offset1 hero-unit">';
 		echo '<h1>Workload ' . strtoupper($workload) . '</h1>';
 		echo '</div>';
-		
+
 		foreach(array('histogram', 'timeseries') as $type) {
 			foreach(array('load', 'run') as $mode) {
 				$data = explode("\n", file_get_contents($dir_path . $workload . "/{$type}_{$mode}.txt"));
@@ -152,17 +152,17 @@ $base_path = realpath('../experiments/') . '/';
 				echo '<p><strong>Overall' . $data[0][1] . ':' . $data[0][2] . '</strong></p>';
 				echo '<p><strong>Overall' . $data[1][1] . ':' . $data[1][2] . '</strong></p>';
 				$data = process_data(array_slice($data, 2));
-				
+
 				echo '<div class="row">';
 				$ops = array_keys($data);
 				foreach($ops as $op) {
 					echo '<div class="span' . (12 / count($ops)) . '">';
-					echo '<div id="chart_' . count($charts) . 
+					echo '<div id="chart_' . count($charts) .
 						'" style="min-width: 310px; height: 400px; margin: 0 auto"></div>';
 					if ($type == 'histogram') {
 						$data[$op]['data']['>1000'] = $data[$op]['stat']['>1000'];
 						$charts[] = '$(\'#chart_' . count($charts) . '\').highcharts(' .
-						json_encode(pie_chart(prep_pie($data[$op]['data'], intval($data[$op]['stat']['Operations']), 30 / count($ops)), 
+						json_encode(pie_chart(prep_pie($data[$op]['data'], intval($data[$op]['stat']['Operations']), 30 / count($ops)),
 							'Operations per Bucket', $op)) . ');';
 					}
 					else {
@@ -179,11 +179,11 @@ $base_path = realpath('../experiments/') . '/';
 		echo '</div>';
 	    }
 	    ?>
-	</div>	
+	</div>
 	<script src="http://code.jquery.com/jquery.js"></script>
 	<script src="bootstrap/js/bootstrap.min.js"></script>
 
-    <script type="text/javascript">	
+    <script type="text/javascript">
         $(function () {
         <?php
         foreach($charts as $chart) {
