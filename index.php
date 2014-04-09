@@ -124,6 +124,7 @@ $base_path = realpath('../experiments/single/') . '/';
 			}
 			?>
 					<li><a href="running_chart.php">Running Chart</a></li>
+					<li><a href="tabular.php">Tabular</a></li>
     				</ul>
 			</div>
 		</div>
