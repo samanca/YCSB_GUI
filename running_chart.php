@@ -41,8 +41,8 @@ function running_chart($cats, $data, $name, $title, $subtitle) {
         'title' => array('text' => $title, 'x' => -20),
         'subtitle' => array('text' => $subtitle, 'x' => -20),
         'xAxis' => array('categories' => $cats),
-        'yAxis' => array('title' => 'Average Latency (ns)', 'plotLines' => array(array('value' => 0, 'width' => 1, 'color' => '#808080'))),
-        'tooltip' => array('valueSuffix' => 'ns'),
+        'yAxis' => array('title' => 'Average Latency (us)', 'plotLines' => array(array('value' => 0, 'width' => 1, 'color' => '#808080'))),
+        'tooltip' => array('valueSuffix' => 'us'),
         'legend' => array('layout' => 'vertical', 'align' => 'right', 'verticalAlign' => 'middle', 'borderWidth' => 0),
         'series' =>
 		array_map(function($key) use($data) {
@@ -50,7 +50,7 @@ function running_chart($cats, $data, $name, $title, $subtitle) {
 			return array(
 				'name' => $key,
 				'data' => array_map(function($v) use($t) {
-					return floatval($t[$v]);
+					return floatval(number_format($t[$v], 1));
 				}, array_keys($data[$key]['data']))
 			); }, array_keys($data))
     );
@@ -152,7 +152,7 @@ if (isset($_POST['input_data'])) {
                     echo '<tr>';
                     echo "<td>$op</td>";
                     foreach($titles as $title) {
-                        echo '<td>' . $summary[$op][$title]['AverageLatency(ns)'] . '</td>';
+                        echo '<td>' . number_format($summary[$op][$title]['AverageLatency(us)'], 1) . ' us</td>';
                     }
                     echo '</tr>';
                 }

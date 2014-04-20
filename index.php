@@ -76,11 +76,11 @@ function running_chart($data, $name, $title, $subtitle) {
         'title' => array('text' => $title, 'x' => -20),
         'subtitle' => array('text' => $subtitle, 'x' => -20),
         'xAxis' => array('categories' => array_keys($data)),
-        'yAxis' => array('title' => 'Average Latency (ns)', 'plotLines' => array(array('value' => 0, 'width' => 1, 'color' => '#808080'))),
-        'tooltip' => array('valueSuffix' => 'ns'),
+        'yAxis' => array('title' => 'Average Latency (us)', 'plotLines' => array(array('value' => 0, 'width' => 1, 'color' => '#808080'))),
+        'tooltip' => array('valueSuffix' => 'us'),
         'legend' => array('layout' => 'vertical', 'align' => 'right', 'verticalAlign' => 'middle', 'borderWidth' => 0),
         'series' => array(
-		array('name' => $name, 'data' => array_map(function($v) { return floatval($v); }, array_values($data))),
+		array('name' => $name, 'data' => array_map(function($v) { return floatval(number_format($v, 1)); }, array_values($data))),
 	),
     );
 }
@@ -150,8 +150,8 @@ $base_path = realpath('../experiments/single/') . '/';
 				$data = array_map(function($v) { return explode(',', $v); }, $data);
 				echo '<div class="span10 offset1">';
 				echo '<h2>' . ucfirst($type . ' ( ' . $mode) . ' )</h2>';
-				echo '<p><strong>Overall' . $data[0][1] . ':' . $data[0][2] . '</strong></p>';
-				echo '<p><strong>Overall' . $data[1][1] . ':' . $data[1][2] . '</strong></p>';
+				echo '<p><strong>Overall' . $data[0][1] . ': ' . number_format($data[0][2], 1) . '</strong></p>';
+				echo '<p><strong>Overall' . $data[1][1] . ': ' . number_format($data[1][2], 1) . '</strong></p>';
 				$data = process_data(array_slice($data, 2));
 
 				echo '<div class="row">';
