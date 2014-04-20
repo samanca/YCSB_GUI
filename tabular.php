@@ -142,7 +142,7 @@ $type = isset($_POST['type']) ? $_POST['type'] : 'timeseries';
 				<td><?=$fs?></td>
 				<?php foreach(array(1, 4, 16) as $nt): ?>
 					<?php foreach($wc[$i] as $writeConcern): ?>
-						<td><p class="text-center"><?=$rows[$fs][$writeConcern][$nt]?></p></td>
+						<td><p class="text-center"><?=number_format ( $rows[$fs][$writeConcern][$nt], 1)?></p></td>
 					<?php endforeach; ?>
 				<?php endforeach; ?>
 			</tr>			
