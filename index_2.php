@@ -85,7 +85,7 @@ function running_chart($data, $name, $title, $subtitle) {
     );
 }
 
-$base_path = realpath('../experiments/replica/') . '/';
+$base_path = realpath('../experiments/single/') . '/';
 ?>
 <html>
     <head>
